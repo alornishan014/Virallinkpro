@@ -26,7 +26,7 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
 
-  const categories = ['all', 'general', 'music', 'gaming', 'education', 'entertainment', 'sports']
+  const categories = ['all', 'general', 'music', 'gaming', 'education', 'entertainment', 'sports', 'anime', 'adult']
 
   useEffect(() => {
     fetchVideos()

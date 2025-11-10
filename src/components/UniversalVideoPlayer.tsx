@@ -14,17 +14,55 @@ export default function UniversalVideoPlayer({ url, title, className = '' }: Uni
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [useFallback, setUseFallback] = useState(false)
+  const [embedUrl, setEmbedUrl] = useState<string>('')
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
-  const getEmbedUrl = (originalUrl: string) => {
+  useEffect(() => {
+    const resolveEmbedUrl = async () => {
+      const resolvedUrl = await getEmbedUrl(url)
+      setEmbedUrl(resolvedUrl)
+    }
+    resolveEmbedUrl()
+  }, [url])
+
+  const isDirectVideo = (url: string) => {
+    return url.match(/\.(mp4|webm|ogg|avi|mov|wmv|flv|mkv|m4v|3gp)$/i)
+  }
+
+  const isEmbeddable = (url: string) => {
+    const embeddablePlatforms = [
+      'youtube.com',
+      'youtu.be',
+      'drive.google.com',
+      'onedrive.live.com',
+      '1drv.ms',
+      'vimeo.com',
+      'dailymotion.com',
+      'tiktok.com',
+      'instagram.com',
+      'facebook.com',
+      'fb.watch',
+      'twitter.com',
+      'x.com',
+      'xhamster.com',
+      'xhamster.one',
+      'xhamster2.com',
+      '9anime',
+      'animedekho'
+    ]
+    
+    return embeddablePlatforms.some(platform => url.includes(platform))
+  }
+
+  const getEmbedUrl = async (originalUrl: string) => {
     // YouTube
     if (originalUrl.includes('youtube.com/watch?v=')) {
       const videoId = originalUrl.split('v=')[1]?.split('&')[0]
-      return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&origin=${window.location.origin}`
+      return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`
     }
     if (originalUrl.includes('youtu.be/')) {
       const videoId = originalUrl.split('youtu.be/')[1]?.split('?')[0]
-      return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&origin=${window.location.origin}`
+      return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`
     }
     
     // Google Drive
@@ -94,32 +132,54 @@ export default function UniversalVideoPlayer({ url, title, className = '' }: Uni
       return `https://twitframe.com/show?url=${encodeURIComponent(originalUrl)}&theme=dark`
     }
     
+    // Xhamster - Use custom proxy
+    if (originalUrl.includes('xhamster.com') || originalUrl.includes('xhamster.one') || originalUrl.includes('xhamster2.com')) {
+      try {
+        const response = await fetch('/api/proxy', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url: originalUrl })
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          return data.embedUrl || originalUrl
+        }
+      } catch (error) {
+        console.error('Proxy error for Xhamster:', error)
+      }
+      // Fallback: try direct embed
+      const videoIdMatch = originalUrl.match(/videos\/([^\/]+)/)
+      if (videoIdMatch) {
+        const videoId = videoIdMatch[1]
+        return `https://xhamster.com/xembed.php?video=${videoId}`
+      }
+    }
+    
+    // 9anime and similar anime sites
+    if (originalUrl.includes('9anime') || originalUrl.includes('animedekho')) {
+      try {
+        const response = await fetch('/api/proxy', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url: originalUrl })
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          return data.embedUrl || originalUrl
+        }
+      } catch (error) {
+        console.error('Proxy error for anime site:', error)
+      }
+    }
+    
     // For unsupported platforms, use a proxy service
     return `https://r.jina.ai/http://${originalUrl.replace(/^https?:\/\//, '')}`
-  }
-
-  const isDirectVideo = (url: string) => {
-    return url.match(/\.(mp4|webm|ogg|avi|mov|wmv|flv|mkv|m4v|3gp)$/i)
-  }
-
-  const isEmbeddable = (url: string) => {
-    const embeddablePlatforms = [
-      'youtube.com',
-      'youtu.be',
-      'drive.google.com',
-      'onedrive.live.com',
-      '1drv.ms',
-      'vimeo.com',
-      'dailymotion.com',
-      'tiktok.com',
-      'instagram.com',
-      'facebook.com',
-      'fb.watch',
-      'twitter.com',
-      'x.com'
-    ]
-    
-    return embeddablePlatforms.some(platform => url.includes(platform))
   }
 
   const handleIframeLoad = () => {
@@ -129,12 +189,13 @@ export default function UniversalVideoPlayer({ url, title, className = '' }: Uni
 
   const handleIframeError = () => {
     setIsLoading(false)
-    setError('Failed to load video. You may need to open this on the original platform.')
-    setUseFallback(true)
+    setError('Failed to load video. Trying alternative method...')
+    setTimeout(() => {
+      setUseFallback(true)
+    }, 2000)
   }
 
-  const embedUrl = getEmbedUrl(url)
-  const canEmbed = isEmbeddable(url) && !useFallback
+  const canEmbed = isEmbeddable(url) && !useFallback && embedUrl
   const isVideoFile = isDirectVideo(url)
 
   if (isVideoFile) {

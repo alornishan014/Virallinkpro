@@ -113,6 +113,30 @@ const sampleVideos = [
     description: "Sample Instagram video for testing social media embed functionality.",
     category: "entertainment",
     views: 3200
+  },
+  {
+    title: "Xhamster Sample Video",
+    videoUrl: "https://xhamster.com/videos/test-video-123",
+    thumbnailUrl: "https://picsum.photos/seed/xhamster1/640/360.jpg",
+    description: "Sample Xhamster video for testing adult site embed functionality.",
+    category: "adult",
+    views: 8900
+  },
+  {
+    title: "9Anime Sample Video",
+    videoUrl: "https://9anime.to/watch/test-anime-episode-1",
+    thumbnailUrl: "https://picsum.photos/seed/anime1/640/360.jpg",
+    description: "Sample anime video for testing anime site embed functionality.",
+    category: "anime",
+    views: 12300
+  },
+  {
+    title: "Animedekho Sample Video",
+    videoUrl: "https://animedekho.com/watch/test-anime-episode-1",
+    thumbnailUrl: "https://picsum.photos/seed/animedekho1/640/360.jpg",
+    description: "Sample anime video from Animedekho for testing embed functionality.",
+    category: "anime",
+    views: 7800
   }
 ]
 

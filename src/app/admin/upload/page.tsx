@@ -33,6 +33,8 @@ export default function UploadPage() {
     'education',
     'entertainment',
     'sports',
+    'anime',
+    'adult',
     'news',
     'technology',
     'comedy',
