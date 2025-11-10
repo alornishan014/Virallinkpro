@@ -292,13 +292,18 @@ export default function UniversalVideoPlayer({ url, title, className = '' }: Uni
           ref={iframeRef}
           src={embedUrl}
           title={title}
-          className={`w-full h-full border-0 ${className}`}
+          className="w-full h-full border-0"
           allowFullScreen
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-presentation"
           onLoad={handleIframeLoad}
           onError={handleIframeError}
-          style={{ display: isLoading ? 'none' : 'block' }}
+          style={{ 
+            display: isLoading || error ? 'none' : 'block',
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain'
+          }}
         />
       </div>
     )
