@@ -13,20 +13,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Video {
+  id          String   @id @default(cuid())
+  title       String
+  videoUrl    String
+  thumbnailUrl String?
+  description String?
+  category    String   @default("general")
+  views       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
-model Post {
+model Analytics {
   id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  date      DateTime @default(now())
+  visitors  Int      @default(0)
+  pageViews Int      @default(0)
+  videoId   String?
+}
+
+model Category {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String?
+  videoCount  Int    @default(0)
 }
