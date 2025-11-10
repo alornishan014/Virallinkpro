@@ -47,6 +47,9 @@ export default function UniversalVideoPlayer({ url, title, className = '' }: Uni
       'xhamster.com',
       'xhamster.one',
       'xhamster2.com',
+      'xnxx.com',
+      'xnxx2.com',
+      'xnxx3.com',
       '9anime',
       'animedekho'
     ]
@@ -151,10 +154,36 @@ export default function UniversalVideoPlayer({ url, title, className = '' }: Uni
         console.error('Proxy error for Xhamster:', error)
       }
       // Fallback: try direct embed
-      const videoIdMatch = originalUrl.match(/videos\/([^\/]+)/)
+      const videoIdMatch = originalUrl.match(/videos\/([^\/\?]+)/)
       if (videoIdMatch) {
         const videoId = videoIdMatch[1]
         return `https://xhamster.com/xembed.php?video=${videoId}`
+      }
+    }
+
+    // XNXX - Use custom proxy
+    if (originalUrl.includes('xnxx.com') || originalUrl.includes('xnxx2.com') || originalUrl.includes('xnxx3.com')) {
+      try {
+        const response = await fetch('/api/proxy', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url: originalUrl })
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          return data.embedUrl || originalUrl
+        }
+      } catch (error) {
+        console.error('Proxy error for XNXX:', error)
+      }
+      // Fallback: try direct embed
+      const videoIdMatch = originalUrl.match(/video-([a-zA-Z0-9_-]+)/)
+      if (videoIdMatch) {
+        const videoId = videoIdMatch[1]
+        return `https://www.xnxx.com/embed-iframe/${videoId}.html`
       }
     }
     

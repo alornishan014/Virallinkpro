@@ -137,6 +137,14 @@ const sampleVideos = [
     description: "Sample anime video from Animedekho for testing embed functionality.",
     category: "anime",
     views: 7800
+  },
+  {
+    title: "XNXX Sample Video",
+    videoUrl: "https://xnxx.com/video-test12345",
+    thumbnailUrl: "https://picsum.photos/seed/xnxx1/640/360.jpg",
+    description: "Sample XNXX video for testing adult site embed functionality.",
+    category: "adult",
+    views: 15600
   }
 ]
 

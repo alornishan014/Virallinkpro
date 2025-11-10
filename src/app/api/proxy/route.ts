@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     if (url.includes('xhamster.com') || url.includes('xhamster.one') || url.includes('xhamster2.com')) {
       try {
         // Extract video ID from Xhamster URL
-        const videoIdMatch = url.match(/videos\/([^\/]+)/)
+        const videoIdMatch = url.match(/videos\/([^\/\?]+)/)
         if (videoIdMatch) {
           const videoId = videoIdMatch[1]
           // Return embed URL
@@ -25,6 +25,26 @@ export async function POST(request: NextRequest) {
         }
       } catch (error) {
         console.error('Xhamster extraction error:', error)
+      }
+    }
+
+    // Handle XNXX
+    if (url.includes('xnxx.com') || url.includes('xnxx2.com') || url.includes('xnxx3.com')) {
+      try {
+        // Extract video ID from XNXX URL
+        const videoIdMatch = url.match(/video-([a-zA-Z0-9_-]+)/)
+        if (videoIdMatch) {
+          const videoId = videoIdMatch[1]
+          // Try to get embed URL
+          const embedUrl = `https://www.xnxx.com/embed-iframe/${videoId}.html`
+          return NextResponse.json({ 
+            embedUrl,
+            directUrl: url,
+            platform: 'xnxx'
+          })
+        }
+      } catch (error) {
+        console.error('XNXX extraction error:', error)
       }
     }
 
