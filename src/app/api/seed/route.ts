@@ -89,6 +89,30 @@ const sampleVideos = [
     description: "Explore the latest technology breakthroughs that are changing our world. From AI innovations to space exploration, see what's next in tech.",
     category: "technology",
     views: 2700
+  },
+  {
+    title: "Vimeo Sample Video",
+    videoUrl: "https://vimeo.com/76979871",
+    thumbnailUrl: "https://picsum.photos/seed/vimeo1/640/360.jpg",
+    description: "Sample video from Vimeo platform for testing embed functionality.",
+    category: "entertainment",
+    views: 1450
+  },
+  {
+    title: "TikTok Sample Video",
+    videoUrl: "https://www.tiktok.com/@test/video/7123456789012345678",
+    thumbnailUrl: "https://picsum.photos/seed/tiktok1/640/360.jpg",
+    description: "Sample TikTok video for testing social media embed functionality.",
+    category: "entertainment",
+    views: 5600
+  },
+  {
+    title: "Instagram Sample Video",
+    videoUrl: "https://www.instagram.com/p/CdAb123EfGh/",
+    thumbnailUrl: "https://picsum.photos/seed/insta1/640/360.jpg",
+    description: "Sample Instagram video for testing social media embed functionality.",
+    category: "entertainment",
+    views: 3200
   }
 ]
 

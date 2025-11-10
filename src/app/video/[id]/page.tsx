@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
+import UniversalVideoPlayer from '@/components/UniversalVideoPlayer'
 import Link from 'next/link'
 
 interface Video {
@@ -78,144 +79,6 @@ export default function VideoPlayer() {
     return `${Math.floor(diffDays / 30)} months ago`
   }
 
-  const getVideoEmbedUrl = (url: string) => {
-    // Handle YouTube URLs
-    if (url.includes('youtube.com/watch?v=')) {
-      const videoId = url.split('v=')[1]?.split('&')[0]
-      return `https://www.youtube.com/embed/${videoId}`
-    }
-    if (url.includes('youtu.be/')) {
-      const videoId = url.split('youtu.be/')[1]?.split('?')[0]
-      return `https://www.youtube.com/embed/${videoId}`
-    }
-    
-    // Handle Google Drive
-    if (url.includes('drive.google.com')) {
-      const fileId = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)?.[1]
-      if (fileId) {
-        return `https://drive.google.com/file/d/${fileId}/preview`
-      }
-      // Handle other Google Drive formats
-      const altFileId = url.match(/id=([a-zA-Z0-9_-]+)/)?.[1]
-      if (altFileId) {
-        return `https://drive.google.com/file/d/${altFileId}/preview`
-      }
-    }
-    
-    // Handle OneDrive
-    if (url.includes('1drv.ms')) {
-      return url.replace('1drv.ms', 'onedrive.live.com/embed')
-    }
-    if (url.includes('onedrive.live.com')) {
-      if (url.includes('/download')) {
-        return url.replace('/download', '/embed')
-      }
-      if (!url.includes('/embed')) {
-        return url + '/embed'
-      }
-    }
-    
-    // Handle Terabox
-    if (url.includes('terabox.com') || url.includes('1024terabox.com')) {
-      // For Terabox, we'll use a proxy approach or direct link
-      return url
-    }
-    
-    // Handle Xhamster and other adult sites (for demonstration)
-    if (url.includes('xhamster.com') || url.includes('xhamster.one') || url.includes('xhamster2.com')) {
-      return url
-    }
-    
-    // Handle Vimeo
-    if (url.includes('vimeo.com')) {
-      const videoId = url.match(/vimeo\.com\/(\d+)/)?.[1]
-      if (videoId) {
-        return `https://player.vimeo.com/video/${videoId}`
-      }
-    }
-    
-    // Handle Dailymotion
-    if (url.includes('dailymotion.com')) {
-      const videoId = url.match(/dailymotion\.com\/video\/([a-zA-Z0-9]+)/)?.[1]
-      if (videoId) {
-        return `https://www.dailymotion.com/embed/video/${videoId}`
-      }
-    }
-    
-    // Handle Facebook
-    if (url.includes('facebook.com') || url.includes('fb.watch')) {
-      return url
-    }
-    
-    // Handle Twitter/X
-    if (url.includes('twitter.com') || url.includes('x.com')) {
-      return url
-    }
-    
-    // Handle Instagram
-    if (url.includes('instagram.com')) {
-      return url
-    }
-    
-    // Handle TikTok
-    if (url.includes('tiktok.com')) {
-      return url
-    }
-    
-    // Handle direct video files
-    if (url.match(/\.(mp4|webm|ogg|avi|mov|wmv|flv|mkv|m4v|3gp)$/i)) {
-      return url
-    }
-    
-    // Handle streaming URLs
-    if (url.match(/\.(m3u8|mpd)$/i)) {
-      return url
-    }
-    
-    // Handle other direct URLs
-    return url
-  }
-
-  const isEmbeddable = (url: string) => {
-    const embeddablePlatforms = [
-      'youtube.com/embed',
-      'player.vimeo.com',
-      'dailymotion.com/embed',
-      'drive.google.com/file/d/.*?/preview',
-      'onedrive.live.com/embed'
-    ]
-    
-    return embeddablePlatforms.some(platform => {
-      const regex = new RegExp(platform.replace(/\*/g, '.*'))
-      return regex.test(getVideoEmbedUrl(url))
-    })
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background text-foreground">
-        <div className="container px-4 py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <Skeleton className="aspect-video w-full mb-4" />
-              <Skeleton className="h-8 w-3/4 mb-2" />
-              <Skeleton className="h-4 w-1/2" />
-            </div>
-            <div>
-              <Skeleton className="h-6 w-full mb-4" />
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="mb-4">
-                  <Skeleton className="aspect-video w-full mb-2" />
-                  <Skeleton className="h-4 w-full" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   if (!video) {
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
@@ -226,8 +89,6 @@ export default function VideoPlayer() {
       </div>
     )
   }
-
-  const videoUrl = getVideoEmbedUrl(video.videoUrl)
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -251,53 +112,11 @@ export default function VideoPlayer() {
           {/* Video Player */}
           <div className="lg:col-span-2">
             <div className="aspect-video bg-black rounded-lg overflow-hidden mb-4">
-              {isEmbeddable(video.videoUrl) ? (
-                <iframe
-                  src={videoUrl}
-                  title={video.title}
-                  className="w-full h-full"
-                  allowFullScreen
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-                />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center relative">
-                  {videoUrl.match(/\.(mp4|webm|ogg|avi|mov|wmv|flv|mkv|m4v|3gp)$/i) ? (
-                    <video
-                      src={videoUrl}
-                      controls
-                      className="w-full h-full"
-                      title={video.title}
-                      preload="metadata"
-                    />
-                  ) : (
-                    <div className="text-center p-6">
-                      <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Play className="h-8 w-8 text-muted-foreground" />
-                      </div>
-                      <h3 className="text-lg font-medium mb-2">External Video Player</h3>
-                      <p className="text-muted-foreground mb-4">
-                        This video needs to be played on its original platform
-                      </p>
-                      <Button asChild>
-                        <a 
-                          href={videoUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2"
-                        >
-                          <Play className="h-4 w-4" />
-                          Open in New Tab
-                        </a>
-                      </Button>
-                      <div className="mt-4 p-3 bg-muted rounded-lg">
-                        <p className="text-xs text-muted-foreground mb-2">Video URL:</p>
-                        <p className="text-xs font-mono break-all">{videoUrl}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+              <UniversalVideoPlayer 
+                url={video.videoUrl}
+                title={video.title}
+                className="w-full h-full"
+              />
             </div>
 
             {/* Video Info */}
